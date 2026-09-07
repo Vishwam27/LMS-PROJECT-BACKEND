@@ -5,8 +5,6 @@ import authRoutes from './routes/authRoutes'
 import courseRoutes from './routes/courseRouts'
 import enrollmentRoutes from "./routes/enrollmentRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
-
-
 const app = express();
 app.use(cors())
 app.use(express.json())
