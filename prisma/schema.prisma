@@ -11,3 +11,55 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum AccountStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+model User {
+  id        String        @id @default(uuid())
+  name      String
+  email     String        @unique
+  password  String
+  role      UserRole      @default(STUDENT)
+  status    AccountStatus @default(APPROVED)
+  avatarUrl String?
+  bio       String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  dailyActivities UserDailyActivity[]
+}
+
+model UserDailyActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+model Course {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  imageUrl     String?
+  price        Decimal  @db.Decimal(10, 2)
+  level        String
+  duration     String
+  instructorId String?
+  categoryId   String
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+}
