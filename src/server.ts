@@ -3,7 +3,8 @@ import cors from 'cors'
 import "dotenv/config"
 import authRoutes from './routes/authRoutes'
 import courseRoutes from './routes/courseRouts'
-
+import enrollmentRoutes from "./routes/enrollmentRoutes";
+import dashboardRoutes from "./routes/dashboardRoutes";
 
 
 const app = express();
@@ -17,6 +18,11 @@ app.get('/api/health',(req,res)=>{
 })
 app.use('/api/courses', courseRoutes)
 app.use('/api/auth', authRoutes)
+app.use("/api/enrollment", enrollmentRoutes);
+app.use(
+  "/api/dashboard",
+  dashboardRoutes
+);
 
 const PORT = process.env.PORT
 
