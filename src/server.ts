@@ -5,6 +5,8 @@ import authRoutes from './routes/authRoutes'
 import courseRoutes from './routes/courseRouts'
 import enrollmentRoutes from "./routes/enrollmentRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
+import instructorRoutes from "./routes/instructorRoutes";
+
 const app = express();
 app.use(cors())
 app.use(express.json())
@@ -20,6 +22,10 @@ app.use("/api/enrollment", enrollmentRoutes);
 app.use(
   "/api/dashboard",
   dashboardRoutes
+);
+app.use(
+  "/api/instructor",
+  instructorRoutes
 );
 
 const PORT = process.env.PORT
