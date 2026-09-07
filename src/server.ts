@@ -6,6 +6,7 @@ import courseRoutes from './routes/courseRouts'
 import enrollmentRoutes from "./routes/enrollmentRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import instructorRoutes from "./routes/instructorRoutes";
+import categoryRoutes from "./routes/categroyController";
 
 const app = express();
 app.use(cors())
@@ -26,6 +27,8 @@ app.use(
 app.use(
   "/api/instructor",
   instructorRoutes
+  "/api/categories",
+  categoryRoutes
 );
 
 const PORT = process.env.PORT
