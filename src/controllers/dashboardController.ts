@@ -129,8 +129,7 @@ export const getDashboard = async (
         const nextLesson =
           lessons.find(
             (lesson) =>
-              progressMap.get(lesson.id)?.completed !==
-              true
+              progressMap.get(lesson.id)?.completed !== true
           ) ?? null;
 
         let learningStatus:
@@ -155,13 +154,10 @@ export const getDashboard = async (
           imageUrl: enrollment.course.imageUrl,
           category:
             enrollment.course.category?.name ?? null,
-
           progress: percentage,
           completedLessons,
           totalLessons,
-
           learningStatus,
-
           nextLesson: nextLesson
             ? {
                 id: nextLesson.id,
@@ -179,8 +175,7 @@ export const getDashboard = async (
     // STATS
     // =========================================================
 
-    const totalEnrolled =
-      enrolledCourses.length;
+    const totalEnrolled = enrolledCourses.length;
 
     const completedCourses =
       enrolledCourses.filter(
@@ -211,8 +206,7 @@ export const getDashboard = async (
     const overallProgress =
       totalLessons > 0
         ? Math.round(
-            (completedLessons / totalLessons) *
-              100
+            (completedLessons / totalLessons) * 100
           )
         : 0;
 
@@ -242,10 +236,10 @@ export const getDashboard = async (
     // RECOMMENDED COURSES
     // =========================================================
 
-    const enrolledCourseIds =
-      enrollments.map(
-        (enrollment) => enrollment.courseId
-      );
+    const enrolledCourseIds = enrollments.map(
+      (enrollment) =>
+        enrollment.courseId
+    );
 
     const recommendedCourses =
       await prisma.course.findMany({
@@ -283,77 +277,122 @@ export const getDashboard = async (
             }
           : null,
       }));
-// =========================================================
-// WEEKLY ACTIVITY
-// =========================================================
 
-const now = new Date();
+    // =========================================================
+    // WEEKLY ACTIVITY
+    // =========================================================
 
-const startOfWeek = new Date(now);
+    const now = new Date();
 
-const day = startOfWeek.getDay();
+    // Convert Date to local YYYY-MM-DD
+    const getLocalDateKey = (
+      date: Date
+    ): string => {
+      const year = date.getFullYear();
 
-// Sunday = first day of week
-startOfWeek.setDate(
-  startOfWeek.getDate() - day
-);
+      const month = String(
+        date.getMonth() + 1
+      ).padStart(2, "0");
 
-startOfWeek.setHours(0, 0, 0, 0);
+      const day = String(
+        date.getDate()
+      ).padStart(2, "0");
 
-const endOfWeek = new Date(startOfWeek);
+      return `${year}-${month}-${day}`;
+    };
 
-endOfWeek.setDate(
-  endOfWeek.getDate() + 7
-);
+    // Start of week
+    // Sunday = first day
+    const startOfWeek = new Date(now);
 
-const dailyActivities =
-  await prisma.userDailyActivity.findMany({
-    where: {
-      userId,
-      date: {
-        gte: startOfWeek,
-        lt: endOfWeek,
-      },
-    },
-    select: {
-      date: true,
-    },
-    orderBy: {
-      date: "asc",
-    },
-  });
+    const dayOfWeek =
+      startOfWeek.getDay();
 
-const activeDates = new Set(
-  dailyActivities.map(
-    (activity) =>
-      activity.date.toISOString().split("T")[0]
-  )
-);
+    startOfWeek.setDate(
+      startOfWeek.getDate() - dayOfWeek
+    );
 
-const todayKey =
-  now.toISOString().split("T")[0];
+    startOfWeek.setHours(
+      0,
+      0,
+      0,
+      0
+    );
 
-const weeklyActivity = Array.from({
-  length: 7,
-}).map((_, index) => {
-  const date = new Date(startOfWeek);
+    // End of week
+    const endOfWeek =
+      new Date(startOfWeek);
 
-  date.setDate(
-    startOfWeek.getDate() + index
-  );
+    endOfWeek.setDate(
+      endOfWeek.getDate() + 7
+    );
 
-  const dateKey =
-    date.toISOString().split("T")[0];
+    // Get user's activities
+    const dailyActivities =
+      await prisma.userDailyActivity.findMany({
+        where: {
+          userId,
 
-  return {
-    date: dateKey,
-    day: date.toLocaleDateString("en-US", {
-      weekday: "short",
-    }),
-    active: activeDates.has(dateKey),
-    isToday: dateKey === todayKey,
-  };
-});
+          date: {
+            gte: startOfWeek,
+            lt: endOfWeek,
+          },
+        },
+
+        select: {
+          date: true,
+        },
+
+        orderBy: {
+          date: "asc",
+        },
+      });
+
+    // Create set of active dates
+    const activeDates = new Set(
+      dailyActivities.map(
+        (activity) =>
+          getLocalDateKey(
+            activity.date
+          )
+      )
+    );
+
+    const todayKey =
+      getLocalDateKey(now);
+
+    // Build weekly activity
+    const weeklyActivity =
+      Array.from({
+        length: 7,
+      }).map((_, index) => {
+        const date =
+          new Date(startOfWeek);
+
+        date.setDate(
+          startOfWeek.getDate() + index
+        );
+
+        const dateKey =
+          getLocalDateKey(date);
+
+        return {
+          date: dateKey,
+
+          day: date.toLocaleDateString(
+            "en-US",
+            {
+              weekday: "short",
+            }
+          ),
+
+          active:
+            activeDates.has(dateKey),
+
+          isToday:
+            dateKey === todayKey,
+        };
+      });
 
     // =========================================================
     // RESPONSE
@@ -389,7 +428,8 @@ const weeklyActivity = Array.from({
     );
 
     res.status(500).json({
-      message: "Unable to load dashboard",
+      message:
+        "Unable to load dashboard",
     });
   }
 };
