@@ -5,6 +5,8 @@ import authRoutes from './routes/authRoutes'
 import courseRoutes from './routes/courseRouts'
 import enrollmentRoutes from "./routes/enrollmentRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
+import categoryRoutes from "./routes/categroyController";
+
 
 
 const app = express();
@@ -22,6 +24,10 @@ app.use("/api/enrollment", enrollmentRoutes);
 app.use(
   "/api/dashboard",
   dashboardRoutes
+);
+app.use(
+  "/api/categories",
+  categoryRoutes
 );
 
 const PORT = process.env.PORT
