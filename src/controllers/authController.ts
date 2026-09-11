@@ -239,7 +239,7 @@ export const login = async (
     // User not found
     if (!user) {
       res.status(401).json({
-        message: "Invalid email or password",
+        message: "Please Create New Account.",
       });
       return;
     }
