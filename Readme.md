@@ -20,7 +20,8 @@ A REST API for a full Learning Management System, built with **Express**, **Pris
 | Framework | Express 5 |
 | Database | PostgreSQL |
 | ORM | Prisma 7 (via `@prisma/adapter-pg` driver adapter) |
-| Auth | JSON Web Tokens (`jsonwebtoken`) + `bcrypt` password hashing |
+| Auth | JSON Web Tokens (`jsonwebtoken`) + `bcrypt` password hashing + Google OAuth |
+| Google Auth | `google-auth-library` + Google OAuth Client ID |
 | Validation | Manual request validation |
 | Media | Cloudinary (course/lesson images & videos, referenced by URL) |
 | Dev tooling | `tsx` (dev server & hot reload) |
@@ -29,6 +30,8 @@ A REST API for a full Learning Management System, built with **Express**, **Pris
 
 **Authentication & Authorization**
 - JWT-based auth with role-based access control (`STUDENT`, `INSTRUCTOR`, `ADMIN`)
+- Google OAuth authentication for users who prefer Google Sign-In
+- New users created through Google Sign-In are automatically assigned the `STUDENT` role with `APPROVED` status
 - Passwords hashed with bcrypt; never returned in any API response
 - Server-side password strength rules and email format validation
 - Instructor accounts require admin approval (`PENDING` → `APPROVED` / `REJECTED`) before they can log in or manage courses
@@ -113,6 +116,7 @@ Create a `.env` file in the project root:
 |---|---|---|
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:password@localhost:5432/lms` |
 | `JWT_SECRET` | Secret used to sign and verify JWTs | a long, random string |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID used to verify Google authentication | `123456789-example.apps.googleusercontent.com` |
 | `PORT` | Port the API server listens on | `5000` |
 
 ### Database Setup
@@ -144,6 +148,7 @@ All protected routes expect `Authorization: Bearer <token>`.
 |---|---|---|---|
 | POST | `/register` | Public | Create a student or instructor account |
 | POST | `/login` | Public | Authenticate and receive a JWT |
+| POST | `/google` | Public | Authenticate with Google and receive a CourseMaster JWT |
 | GET | `/me` | Authenticated | Get the current user's profile |
 | PUT | `/profile` | Authenticated | Update name, bio, or avatar |
 
