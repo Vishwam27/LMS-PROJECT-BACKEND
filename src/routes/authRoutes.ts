@@ -8,14 +8,19 @@ import {
 } from "../controllers/authController";
 
 import { authMiddleware } from "../middleware/authMiddleware";
+import {
+  loginRateLimiter,
+  registerRateLimiter,
+  googleRateLimiter,
+} from "../middleware/rateLimit";
 
 const router = Router();
 
-router.post("/register", register);
+router.post("/register",registerRateLimiter,register);
 
-router.post("/login", login);
+router.post("/login",loginRateLimiter,login);
 
-router.post("/google", googleLogin);
+router.post("/google",googleRateLimiter,googleLogin);
 
 router.get("/me", authMiddleware, getMe);
 
