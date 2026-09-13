@@ -23,6 +23,7 @@ A REST API for a full Learning Management System, built with **Express**, **Pris
 | Auth | JSON Web Tokens (`jsonwebtoken`) + `bcrypt` password hashing |
 | Validation | Manual request validation |
 | Media | Cloudinary (course/lesson images & videos, referenced by URL) |
+| Security | `express-rate-limit` for authentication endpoint rate limiting |
 | Dev tooling | `tsx` (dev server & hot reload) |
 
 ## Features
@@ -31,6 +32,7 @@ A REST API for a full Learning Management System, built with **Express**, **Pris
 - JWT-based auth with role-based access control (`STUDENT`, `INSTRUCTOR`, `ADMIN`)
 - Passwords hashed with bcrypt; never returned in any API response
 - Server-side password strength rules and email format validation
+- Rate limiting on authentication endpoints to reduce brute-force and abuse attempts
 - Instructor accounts require admin approval (`PENDING` → `APPROVED` / `REJECTED`) before they can log in or manage courses
 
 **Students**
