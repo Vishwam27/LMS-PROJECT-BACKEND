@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approveInstructor, deleteAdminLesson, deleteCourse, getAdminCourseById, getAdminDashboard, getAllCourses, getAllUsers, getPendingInstructors, rejectInstructor } from "../controllers/adminController";
+import { approveInstructor, deleteAdminLesson, deleteCourse, deleteUser, getAdminCourseById, getAdminDashboard, getAllCourses, getAllUsers, getPendingInstructors, rejectInstructor } from "../controllers/adminController";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { requireRole } from "../middleware/roleMiddleware";
 
@@ -65,5 +65,11 @@ router.get(
   authMiddleware,
   requireRole("ADMIN"),
   getPendingInstructors
+);
+router.delete(
+  "/users/:userId",
+  authMiddleware,
+  requireRole("ADMIN"),
+  deleteUser
 );
 export default router;

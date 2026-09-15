@@ -611,3 +611,80 @@ export const getPendingInstructors = async (
     });
   }
 };
+export const deleteUser = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    // Make sure the request is authenticated
+    if (!req.user) {
+      res.status(401).json({
+        message: "Authentication required",
+      });
+      return;
+    }
+
+    const userId = Array.isArray(req.params.userId)
+      ? req.params.userId[0]
+      : req.params.userId;
+
+    if (!userId) {
+      res.status(400).json({
+        message: "User ID is required",
+      });
+      return;
+    }
+
+    // Prevent admin from deleting their own account
+    if (req.user.userId === userId) {
+      res.status(400).json({
+        message: "You cannot delete your own account",
+      });
+      return;
+    }
+
+    // Check whether user exists
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+      return;
+    }
+
+    // Delete user
+    const deletedUser = await prisma.user.delete({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    res.status(200).json({
+      message: "User deleted successfully",
+      user: deletedUser,
+    });
+  } catch (error) {
+    console.error("Delete user error:", error);
+
+    res.status(500).json({
+      message: "Failed to delete user",
+    });
+  }
+};
