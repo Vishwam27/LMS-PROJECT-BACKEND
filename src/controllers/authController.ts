@@ -191,21 +191,24 @@ export const register = async (
     // ==========================================
     // 12. Response
     // ==========================================
+  
 
-    res.status(201).json({
-      message:
+      const successMessage =
         requestedRole === "INSTRUCTOR"
-          ? "Instructor account created. Waiting for admin approval."
-          : "Account created successfully",
+       ? "Registration successful! Your instructor account has been created and is waiting for admin approval."
+        : "Registration successful! Your account has been created. You can now log in with your email and password.";
 
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        status: user.status,
-      },
-    });
+        res.status(201).json({
+           success: true,
+           message: successMessage,
+           user: {
+           id: user.id,
+           name: user.name,
+           email: user.email,
+           role: user.role,
+           status: user.status,
+           },
+          });
   } catch (error) {
     console.error(
       "Register error:",
