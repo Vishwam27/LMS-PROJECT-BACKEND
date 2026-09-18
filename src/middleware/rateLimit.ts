@@ -2,8 +2,8 @@ import rateLimit from "express-rate-limit";
 
 // Login
 export const loginRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 10,
+  windowMs: Number(process.env.LOGIN_WINDOWS_TIME ?? 15 * 60 * 1000), // 15 minutes
+  limit: Number(process.env.RATE_LIMIT ?? 10),
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {
@@ -14,8 +14,8 @@ export const loginRateLimiter = rateLimit({
 
 // Register
 export const registerRateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  limit: 5,
+  windowMs:  Number(process.env.LOGIN_WINDOWS_TIME ?? 60 * 60 * 1000), // 1 hour
+  limit:  Number(process.env.RATE_LIMIT ?? 10),
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {
@@ -26,8 +26,8 @@ export const registerRateLimiter = rateLimit({
 
 // Google Login
 export const googleRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 10,
+  windowMs:Number(process.env.LOGIN_WINDOWS_TIME ?? 15 * 60 * 1000), // 15 minutes
+  limit:  Number(process.env.RATE_LIMIT ?? 10),
   standardHeaders: "draft-8",
   legacyHeaders: false,
   message: {

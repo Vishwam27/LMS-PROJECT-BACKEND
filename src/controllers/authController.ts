@@ -371,7 +371,7 @@ export const login = async (
       process.env.JWT_SECRET as string,
 
       {
-        expiresIn: "5h",
+        expiresIn: process.env.JWT_EXPIRE_IN as any,
       }
     );
 
@@ -714,7 +714,7 @@ export const googleLogin = async (
       process.env.JWT_SECRET as string,
 
       {
-        expiresIn: "5h",
+        expiresIn: process.env.JWT_EXPIRE_IN as any,
       }
     );
 
