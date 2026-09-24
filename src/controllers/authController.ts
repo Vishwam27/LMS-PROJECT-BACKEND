@@ -884,3 +884,52 @@ export const updateProfile = async (
     });
   }
 };
+export const deleteAccount = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        message: "Authentication required",
+      });
+      return;
+    }
+
+    const userId = req.user.userId;
+
+    // Make sure the account exists
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        message: "Account not found",
+      });
+      return;
+    }
+
+    // Delete the currently logged-in user
+    await prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    });
+
+    res.status(200).json({
+      message: "Account deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete account error:", error);
+
+    res.status(500).json({
+      message: "Unable to delete account. Please try again later.",
+    });
+  }
+};
