@@ -933,3 +933,115 @@ export const deleteAccount = async (
     });
   }
 };
+export const changePassword = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: "Authentication required.",
+      });
+      return;
+    }
+
+    if (
+      typeof currentPassword !== "string" ||
+      typeof newPassword !== "string" ||
+      !currentPassword ||
+      !newPassword
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Both passwords are required.",
+      });
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      res.status(400).json({
+        success: false,
+        message: "New password must differ from the current password.",
+      });
+      return;
+    }
+
+    // Match the password requirements used on your registration page.
+    const strongPassword =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>_]).{8,}$/;
+
+    if (!strongPassword.test(newPassword)) {
+      res.status(400).json({
+        success: false,
+        message:
+          "Password must have at least 8 characters, uppercase and lowercase letters, a number, and a special character.",
+      });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        password: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "Account not found.",
+      });
+      return;
+    }
+
+    // Google-only accounts may not have a password to verify.
+    if (!user.password) {
+      res.status(400).json({
+        success: false,
+        message:
+          "This account does not have a password set. Please use Google sign-in.",
+      });
+      return;
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!passwordMatches) {
+      res.status(400).json({
+        success: false,
+        message: "Current password is incorrect.",
+      });
+      return;
+    }
+
+    // Use the same hashing configuration as registration.
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully.",
+    });
+  } catch (error) {
+    console.error("Change password error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to change password. Please try again later.",
+    });
+  }
+};
