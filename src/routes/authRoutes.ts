@@ -5,7 +5,8 @@ import {
   getMe,
   updateProfile,
   googleLogin,
-  deleteAccount
+  deleteAccount,
+  changePassword
 } from "../controllers/authController";
 
 import { authMiddleware } from "../middleware/authMiddleware";
@@ -27,5 +28,10 @@ router.get("/me", authMiddleware, getMe);
 
 router.put("/profile", authMiddleware, updateProfile);
 router.delete("/account",authMiddleware,deleteAccount);
+router.put(
+  "/change-password",
+  authMiddleware,
+  changePassword
+);
 
 export default router;
