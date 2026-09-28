@@ -18,12 +18,6 @@ app.get('/api/health',(req,res)=>{
         message: 'LMS backend is running'
     })
 })
-app.use((_req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API route not found",
-  });
-});
 app.use('/api/courses', courseRoutes)
 app.use('/api/auth', authRoutes)
 app.use("/api/enrollment", enrollmentRoutes);
@@ -42,7 +36,12 @@ app.use(
   "/api/admin",
   adminRoutes
 );
-
+app.use((_req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
+  });
+});
 const PORT = process.env.PORT
 
 app.listen(PORT,()=>{
