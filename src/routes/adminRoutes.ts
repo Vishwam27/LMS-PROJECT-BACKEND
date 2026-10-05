@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { approveInstructor, deleteAdminLesson, deleteCourse, deleteUser, getAdminCourseById, getAdminDashboard, getAllCourses, getAllUsers, getPendingInstructors, rejectInstructor } from "../controllers/adminController";
+import { approveInstructor, deleteAdminLesson, deleteCourse, deleteUser, getAdminCourseById, getAdminDashboard, getAllCourses, getAllUsers, getPendingInstructors, rejectInstructor, updateUserRole } from "../controllers/adminController";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { requireRole } from "../middleware/roleMiddleware";
 
@@ -71,5 +71,11 @@ router.delete(
   authMiddleware,
   requireRole("ADMIN"),
   deleteUser
+);
+router.patch(
+  "/users/:userId/role",
+  authMiddleware,
+  requireRole("ADMIN"),
+  updateUserRole
 );
 export default router;
