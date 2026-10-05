@@ -1,7 +1,7 @@
 import { Response } from "express";
 import prisma from "../config/db";
 import { AuthRequest } from "../middleware/authMiddleware";
-
+type UserRole = "STUDENT" | "INSTRUCTOR" | "ADMIN";
 export const getAdminDashboard = async (
   req: AuthRequest,
   res: Response
@@ -685,6 +685,131 @@ export const deleteUser = async (
 
     res.status(500).json({
       message: "Failed to delete user",
+    });
+  }
+};
+
+export const updateUserRole = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    // Make sure admin is authenticated
+    if (!req.user) {
+      res.status(401).json({
+        message: "Authentication required",
+      });
+      return;
+    }
+
+    const userId = Array.isArray(req.params.userId)
+      ? req.params.userId[0]
+      : req.params.userId;
+
+    if (!userId) {
+      res.status(400).json({
+        message: "User ID is required",
+      });
+      return;
+    }
+
+    const { role } = req.body;
+
+    // Validate role
+    const validRoles: UserRole[] = [
+      "STUDENT",
+      "INSTRUCTOR",
+      "ADMIN",
+    ];
+
+    if (!validRoles.includes(role)) {
+      res.status(400).json({
+        message:
+          "Invalid role. Role must be STUDENT, INSTRUCTOR, or ADMIN.",
+      });
+      return;
+    }
+
+    // Prevent admin from changing their own role
+    if (req.user.userId === userId) {
+      res.status(400).json({
+        message: "You cannot change your own role.",
+      });
+      return;
+    }
+
+    // Check whether user exists
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found",
+      });
+      return;
+    }
+
+    // No change needed
+    if (user.role === role) {
+      res.status(400).json({
+        message: `User is already assigned the ${role} role.`,
+      });
+      return;
+    }
+
+    // When changing TO instructor, require instructor approval
+    let newStatus = user.status;
+
+    if (role === "INSTRUCTOR") {
+      newStatus = "PENDING";
+    }
+
+    // If changing FROM instructor to another role,
+    // instructor approval status is no longer relevant.
+    if (role !== "INSTRUCTOR") {
+      newStatus = "APPROVED";
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        role,
+        status: newStatus,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        avatarUrl: true,
+        bio: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(200).json({
+      message: "User role updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Update user role error:", error);
+
+    res.status(500).json({
+      message: "Unable to update user role",
     });
   }
 };
